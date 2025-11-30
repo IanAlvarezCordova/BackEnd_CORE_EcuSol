@@ -8,13 +8,13 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-@Table(name = "tipoCuenta")
+@Table(name = "tipocuenta")
 @Getter
 @Setter
 public class TipoCuenta implements Serializable {
 
     @Id
-    @Column(name = "tipoCuentaId")
+    @Column(name = "tipocuentaid")
     private Integer tipoCuentaId;
 
     @Column(name = "nombre", nullable = false, length = 50)
@@ -26,7 +26,7 @@ public class TipoCuenta implements Serializable {
     @Column(name = "estado", nullable = false, length = 15)
     private String estado;
 
-    @Column(name = "tipoAmortizacion", nullable = false, length = 20)
+    @Column(name = "tipoamortizacion", nullable = false, length = 20)
     private String tipoAmortizacion;
 
     public TipoCuenta() {}

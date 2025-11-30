@@ -1,0 +1,10 @@
+JWT_EXPIRATION_MS=86400000
+SERVER_PORT=8081
+
+# Credenciales
+SPRING_DATASOURCE_USERNAME=neondb_owner
+SPRING_DATASOURCE_PASSWORD=npg_mw4Ln6Ncbqhz
+
+# LA URL CORRECTA (Basada en lo que me acabas de pasar)
+# Nota: Agregué 'jdbc:', quité el usuario/pass de la URL y puse el schema correcto.
+SPRING_DATASOURCE_URL=jdbc:postgresql://ep-still-firefly-ahhj35f3.c-3.us-east-1.aws.neon.tech:5432/neondb?sslmode=require&currentSchema=ecusol_core
