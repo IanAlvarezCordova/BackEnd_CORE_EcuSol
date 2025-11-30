@@ -7,23 +7,23 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-@Table(name = "ubicacionGeografica")
+@Table(name = "ubicaciongeografica")
 @Getter
 @Setter
 public class UbicacionGeografica implements Serializable {
 
     @Id
-    @Column(name = "ubicacionId")
+    @Column(name = "ubicacionid")
     private Integer ubicacionId;
 
     @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
-    @Column(name = "tipoUbicacion", nullable = false, length = 15)
+    @Column(name = "tipoubicacion", nullable = false, length = 15)
     private String tipoUbicacion;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ubicacionPadreId")
+    @JoinColumn(name = "ubicacionpadreid")
     private UbicacionGeografica ubicacionPadre;
 
     public UbicacionGeografica() {}

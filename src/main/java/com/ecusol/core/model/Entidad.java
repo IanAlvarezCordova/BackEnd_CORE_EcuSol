@@ -14,16 +14,16 @@ import java.util.Objects;
 public class Entidad implements Serializable {
 
     @Id
-    @Column(name = "entidadId")
+    @Column(name = "entidadid") // CAMBIO: entidadId -> entidadid
     private Integer entidadId;
 
     @Column(name = "ruc", unique = true, nullable = false, length = 13)
     private String ruc;
 
-    @Column(name = "razonSocial", nullable = false, length = 100)
+    @Column(name = "razonsocial", nullable = false, length = 100)
     private String razonSocial;
 
-    @Column(name = "nombreComercial", nullable = false, length = 100)
+    @Column(name = "nombrecomercial", nullable = false, length = 100)
     private String nombreComercial;
 
     @Column(name = "estado", nullable = false, length = 15)

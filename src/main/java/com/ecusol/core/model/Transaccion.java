@@ -16,21 +16,21 @@ public class Transaccion implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "transaccionId")
+    @Column(name = "transaccionid")
     private Integer transaccionId;
 
     @ManyToOne
-    @JoinColumn(name = "cuentaId", nullable = false) // FK a la cuenta principal
+    @JoinColumn(name = "cuentaid", nullable = false) // FK a la cuenta principal
     private Cuenta cuenta;
 
     @ManyToOne
-    @JoinColumn(name = "cuentaContraparteId") // FK a la otra cuenta (puede ser null)
+    @JoinColumn(name = "cuentacontraparteid") // FK a la otra cuenta (puede ser null)
     private Cuenta cuentaContraparte;
 
     @Column(name = "referencia", unique = true, nullable = false, length = 50)
     private String referencia;
 
-    @Column(name = "rolTransaccion", nullable = false, length = 10) // EMISOR o RECEPTOR
+    @Column(name = "roltransaccion", nullable = false, length = 10) // EMISOR o RECEPTOR
     private String rolTransaccion;
 
     @Column(name = "monto", nullable = false, precision = 18, scale = 2)
@@ -42,6 +42,6 @@ public class Transaccion implements Serializable {
     @Column(name = "estado", nullable = false, length = 15)
     private String estado;
 
-    @Column(name = "fechaEjecucion", nullable = false)
+    @Column(name = "fechaejecucion", nullable = false)
     private LocalDateTime fechaEjecucion;
 }

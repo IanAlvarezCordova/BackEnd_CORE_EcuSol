@@ -38,7 +38,7 @@ public class Cuenta {
     @Column(name = "saldo", nullable = false)
     private BigDecimal saldo;
 
-    @Column(name = "fechaApertura", nullable = false)
+    @Column(name = "fechaapertura", nullable = false) 
     private LocalDate fechaApertura;
 
     @Column(name = "estado", nullable = false)

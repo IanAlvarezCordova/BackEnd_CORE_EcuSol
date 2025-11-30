@@ -9,14 +9,14 @@ import java.math.BigDecimal;
 @Data
 public class Sucursal {
     @Id 
-    @Column(name = "sucursalId")
+    @Column(name = "sucursalid")
     private Integer sucursalId;
     
     // Evita traer la Entidad Bancaria completa cada vez
-    @Column(name = "entidadId") 
+    @Column(name = "entidadid") 
     private Integer entidadId; 
     
-    @Column(name = "ubicacionId")
+    @Column(name = "ubicacionid ")
     private Integer ubicacionId;
     
     @Column(name = "nombre")
@@ -34,7 +34,7 @@ public class Sucursal {
     @Column(name = "longitud")
     private BigDecimal longitud;
     
-    @Column(name = "codigoSucursal")
+    @Column(name = "codigosucursal")
     private String codigoSucursal;
     
     @Column(name = "estado")

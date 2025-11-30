@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "empresa")
-@PrimaryKeyJoinColumn(name = "clienteId")
+@PrimaryKeyJoinColumn(name = "clienteid") // Minúscula
 @Getter
 @Setter
 public class Empresa extends Cliente {
@@ -15,10 +15,12 @@ public class Empresa extends Cliente {
     @Column(name = "ruc", unique = true, nullable = false, length = 13)
     private String ruc;
 
-    @Column(name = "razonSocial", nullable = false, length = 150)
+    // CAMBIO: razonSocial -> razonsocial
+    @Column(name = "razonsocial", nullable = false, length = 150)
     private String razonSocial;
 
-    @Column(name = "correoElectronico", nullable = false, length = 100)
+    // CAMBIO: correoElectronico -> correoelectronico
+    @Column(name = "correoelectronico", nullable = false, length = 100)
     private String correoElectronico;
 
     @Column(name = "telefono", nullable = false, length = 20)
