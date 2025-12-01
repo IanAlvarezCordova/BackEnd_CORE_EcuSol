@@ -1,4 +1,3 @@
-// src/main/java/com/ecusol/core/dto/ResumenClienteDTO.java USA VENTANILLA
 package com.ecusol.core.dto;
 
 import lombok.Data;

@@ -1,4 +1,3 @@
-//ubi: src/main/java/com/ecusol/core/repository/CuentaRepository.java
 package com.ecusol.core.repository;
 
 import com.ecusol.core.dto.CuentaResumenDTO;
@@ -14,8 +13,6 @@ public interface CuentaRepository extends JpaRepository<Cuenta, Integer> {
     
     Optional<Cuenta> findByNumeroCuenta(String numeroCuenta);
 
-    // CONSULTA MAESTRA: Evita el problema N+1 y los logs gigantes.
-    // Selecciona datos puntuales y los mete en el DTO directamente.
     @Query("SELECT new com.ecusol.core.dto.CuentaResumenDTO(c.cuentaId, c.numeroCuenta, c.saldo, c.estado, c.tipoCuenta.tipoCuentaId) " +
            "FROM Cuenta c WHERE c.cliente.clienteId = :clienteId")
     List<CuentaResumenDTO> findResumenByClienteId(Integer clienteId);

@@ -6,6 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TipoCuentaRepository extends JpaRepository<TipoCuenta, Integer> {
-    // No necesitas definir métodos extra por ahora, 
-    // JpaRepository ya trae getReferenceById(), findById(), save(), etc.
+
 }

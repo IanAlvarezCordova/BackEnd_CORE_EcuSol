@@ -1,4 +1,3 @@
-//ubi: src/main/java/com/ecusol/core/model/Cuenta.java
 package com.ecusol.core.model;
 
 import jakarta.persistence.*;
@@ -18,8 +17,6 @@ public class Cuenta {
     @Column(name = "cuentaid")
     private Integer cuentaId;
 
-    // OPTIMIZACIÓN: FetchType.LAZY evita que Hibernate traiga todo el árbol de objetos
-    // solo cuando consultas una cuenta.
     @ManyToOne(fetch = FetchType.LAZY) 
     @JoinColumn(name = "clienteid", nullable = false)
     private Cliente cliente;

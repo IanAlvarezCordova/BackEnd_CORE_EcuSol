@@ -1,4 +1,3 @@
-//ubi: src/main/java/com/ecusol/core/model/Transaccion.java
 package com.ecusol.core.model;
 
 import jakarta.persistence.*;
@@ -20,17 +19,17 @@ public class Transaccion implements Serializable {
     private Integer transaccionId;
 
     @ManyToOne
-    @JoinColumn(name = "cuentaid", nullable = false) // FK a la cuenta principal
+    @JoinColumn(name = "cuentaId", nullable = false) 
     private Cuenta cuenta;
 
     @ManyToOne
-    @JoinColumn(name = "cuentacontraparteid") // FK a la otra cuenta (puede ser null)
+    @JoinColumn(name = "cuentaContraparteId") 
     private Cuenta cuentaContraparte;
 
     @Column(name = "referencia", unique = true, nullable = false, length = 50)
     private String referencia;
 
-    @Column(name = "roltransaccion", nullable = false, length = 10) // EMISOR o RECEPTOR
+    @Column(name = "rolTransaccion", nullable = false, length = 10) 
     private String rolTransaccion;
 
     @Column(name = "monto", nullable = false, precision = 18, scale = 2)

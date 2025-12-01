@@ -1,4 +1,3 @@
-// config/JwtTokenProvider.java
 package com.ecusol.core.config;
 
 import io.jsonwebtoken.*;
@@ -17,7 +16,6 @@ public class JwtTokenProvider {
     @Value("${jwt.expiration-ms}")
     private long validityInMilliseconds;
 
-    // MODIFICADO: Recibe el ROL
     public String createToken(String username, Long id, String rol) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityInMilliseconds);
@@ -25,7 +23,7 @@ public class JwtTokenProvider {
         return Jwts.builder()
                 .subject(username)
                 .claim("id", id)
-                .claim("rol", rol) // 'CLIENTE' o 'EMPLEADO'
+                .claim("rol", rol) 
                 .issuedAt(now)
                 .expiration(validity)
                 .signWith(key)
@@ -36,14 +34,12 @@ public class JwtTokenProvider {
         return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload().getSubject();
     }
 
-    // Validaciones genéricas
     public boolean validateToken(String token) {
         try {
             Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
             return true;
         } catch (Exception e) { return false; }
     }
-    // Obtener ID desde el token
     public Long getId(String token) {
         Claims claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
         return claims.get("id", Long.class);

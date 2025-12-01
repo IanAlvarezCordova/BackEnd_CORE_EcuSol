@@ -1,4 +1,3 @@
-//ubi: src/main/java/com/ecusol/core/repository/ClienteRepository.java  
 package com.ecusol.core.repository;
 
 import com.ecusol.core.model.Cliente;

@@ -1,4 +1,3 @@
-// src/main/java/com/ecusol/core/dto/CuentaResumenDTO.java
 package com.ecusol.core.dto;
 
 import lombok.AllArgsConstructor;
@@ -12,5 +11,5 @@ public class CuentaResumenDTO {
     private String numeroCuenta;
     private BigDecimal saldo;
     private String estado;
-    private Integer tipoCuentaId; // ID plano, sin objeto anidado
+    private Integer tipoCuentaId; 
 }

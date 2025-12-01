@@ -1,4 +1,3 @@
-//ubi: src/main/java/com/ecusol/core/dto/SucursalDTO.java
 package com.ecusol.core.dto;
 import lombok.Data;
 import java.math.BigDecimal;

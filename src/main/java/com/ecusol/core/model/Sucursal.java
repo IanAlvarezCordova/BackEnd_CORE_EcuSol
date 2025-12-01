@@ -12,8 +12,7 @@ public class Sucursal {
     @Column(name = "sucursalid")
     private Integer sucursalId;
     
-    // Evita traer la Entidad Bancaria completa cada vez
-    @Column(name = "entidadid") 
+    @Column(name = "entidadId") 
     private Integer entidadId; 
     
     @Column(name = "ubicacionid")

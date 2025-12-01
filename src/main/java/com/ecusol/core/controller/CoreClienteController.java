@@ -4,34 +4,73 @@ import com.ecusol.core.dto.RegistroClienteCoreDTO;
 import com.ecusol.core.dto.CrearCuentaDTO;
 import com.ecusol.core.repository.ClienteRepository;
 import com.ecusol.core.service.CoreBancarioService;
+
+import java.net.URI;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping("/api/core/clientes")
+@RequestMapping("/api/v1/core/clientes")
 public class CoreClienteController {
 
-    @Autowired private CoreBancarioService service;
-    @Autowired private ClienteRepository clienteRepo; 
+    @Autowired 
+    private CoreBancarioService service;
+    @Autowired 
+    private ClienteRepository clienteRepo; 
 
-    @PostMapping("/crear-persona")
+    @PostMapping
     public ResponseEntity<Integer> crearPersona(@RequestBody RegistroClienteCoreDTO dto) {
-        Integer id = service.crearClientePersona(dto);
-        return ResponseEntity.ok(id);
+        try {
+            Integer id = service.crearClientePersona(dto);
+
+            URI location = URI.create(String.format("/api/v1/core/clientes/%d", id));
+            return ResponseEntity.created(location).body(id);
+
+        } catch (Exception ex) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "No se pudo crear el cliente en el Core",
+                    ex
+            );
+        }
     }
     
-    @PostMapping("/crear-cuenta")
-    public ResponseEntity<String> crearCuenta(@RequestBody CrearCuentaDTO dto) {
-        String numero = service.crearCuenta(dto);
-        return ResponseEntity.ok(numero);
+    @PostMapping("/{clienteId}/cuentas")
+    public ResponseEntity<String> crearCuenta(
+            @PathVariable Integer clienteId,
+            @RequestBody CrearCuentaDTO dto
+    ) {
+        try {
+            dto.setClienteId(clienteId);
+
+            String numeroCuenta = service.crearCuenta(dto);
+
+            URI location = URI.create(String.format(
+                    "/api/v1/core/clientes/%d/cuentas/%s", clienteId, numeroCuenta
+            ));
+
+            return ResponseEntity.created(location).body(numeroCuenta);
+
+        } catch (Exception ex) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "No se pudo crear la cuenta para el cliente " + clienteId,
+                    ex
+            );
+        }
     }
 
-    // --- AGREGA ESTE MÉTODO ---
-    @GetMapping("/{id}/estado-simple")
-    public ResponseEntity<String> getEstadoSimple(@PathVariable Integer id) {
+    @GetMapping("/{id}/estado")
+    public ResponseEntity<String> getEstado(@PathVariable Integer id) {
         return clienteRepo.findById(id)
-                .map(cliente -> ResponseEntity.ok(cliente.getEstado())) // Devuelve "ACTIVO"
-                .orElse(ResponseEntity.notFound().build());
+                .map(c -> ResponseEntity.ok(c.getEstado()))
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Cliente no encontrado con id " + id
+                ));
     }
 }

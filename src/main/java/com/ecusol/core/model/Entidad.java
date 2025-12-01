@@ -1,4 +1,3 @@
-//ubi: src/main/java/com/ecusol/core/model/Entidad.java
 package com.ecusol.core.model;
 
 import jakarta.persistence.*;

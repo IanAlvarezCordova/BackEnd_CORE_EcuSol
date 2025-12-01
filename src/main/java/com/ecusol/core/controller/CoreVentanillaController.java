@@ -8,98 +8,163 @@ import com.ecusol.core.repository.PersonaRepository;
 import com.ecusol.core.repository.TransaccionRepository;
 import com.ecusol.core.service.CoreBancarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping("/api/core/ventanilla")
+@RequestMapping("/api/core/v1/ventanilla")
 public class CoreVentanillaController {
 
-    @Autowired private PersonaRepository personaRepo;
-    @Autowired private CuentaRepository cuentaRepo;
-    @Autowired private ClienteRepository clienteRepo;
-    @Autowired private TransaccionRepository transaccionRepo;
-    @Autowired private CoreBancarioService service;
+    @Autowired 
+    private PersonaRepository personaRepo;
+    @Autowired 
+    private CuentaRepository cuentaRepo;
+    @Autowired 
+    private ClienteRepository clienteRepo;
+    @Autowired 
+    private TransaccionRepository transaccionRepo;
+    @Autowired 
+    private CoreBancarioService service;
 
-    // --- BÚSQUEDA CLIENTE ---
     @GetMapping("/buscar-cliente/{cedula}")
     public ResponseEntity<ResumenClienteDTO> buscarPorCedula(@PathVariable String cedula) {
-        return personaRepo.findByNumeroIdentificacion(cedula).map(p -> {
-            ResumenClienteDTO dto = new ResumenClienteDTO();
-            dto.setClienteId(p.getClienteId());
-            dto.setNombres(p.getNombres() + " " + p.getApellidos());
-            dto.setCedula(p.getNumeroIdentificacion());
-            // Obtenemos estado del cliente padre
-            dto.setEstado(clienteRepo.findById(p.getClienteId()).get().getEstado());
-            dto.setCuentas(cuentaRepo.findResumenByClienteId(p.getClienteId()));
-            return ResponseEntity.ok(dto);
-        }).orElse(ResponseEntity.notFound().build());
+        var persona = personaRepo.findByNumeroIdentificacion(cedula)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Cliente no encontrado con cédula " + cedula
+                ));
+
+        var cliente = clienteRepo.findById(persona.getClienteId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Cliente Core no encontrado para id " + persona.getClienteId()
+                ));
+
+        ResumenClienteDTO dto = new ResumenClienteDTO();
+        dto.setClienteId(persona.getClienteId());
+        dto.setNombres(persona.getNombres() + " " + persona.getApellidos());
+        dto.setCedula(persona.getNumeroIdentificacion());
+        dto.setEstado(cliente.getEstado());
+        dto.setCuentas(cuentaRepo.findResumenByClienteId(persona.getClienteId()));
+
+        return ResponseEntity.ok(dto);
     }
 
-    // --- OPERACIONES (DEPÓSITO, RETIRO, TRANSFERENCIA) ---
     @PostMapping("/operar")
     public ResponseEntity<String> operarCaja(@RequestBody TransaccionCajaRequest req) {
         try {
-            String ref = "";
-            if ("DEPOSITO".equals(req.getTipoOperacion())) {
-                ref = service.procesarDeposito(req.getCuentaOrigen(), req.getMonto(), req.getDescripcion());
-            } else if ("RETIRO".equals(req.getTipoOperacion())) {
-                ref = service.procesarRetiro(req.getCuentaOrigen(), req.getMonto(), req.getDescripcion());
-            } else if ("TRANSFERENCIA".equals(req.getTipoOperacion())) {
-                 TransaccionRequestDTO trf = new TransaccionRequestDTO();
-                 trf.setCuentaOrigen(req.getCuentaOrigen());
-                 trf.setCuentaDestino(req.getCuentaDestino());
-                 trf.setMonto(req.getMonto());
-                 trf.setDescripcion(req.getDescripcion());
-                 ref = service.procesarTransferencia(trf);
+            if (req.getTipoOperacion() == null) {
+                throw new IllegalArgumentException("El tipo de operación es obligatorio");
             }
+
+            String ref;
+
+            switch (req.getTipoOperacion()) {
+                case "DEPOSITO" -> ref = service.procesarDeposito(
+                        req.getCuentaOrigen(),
+                        req.getMonto(),
+                        req.getDescripcion()
+                );
+                case "RETIRO" -> ref = service.procesarRetiro(
+                        req.getCuentaOrigen(),
+                        req.getMonto(),
+                        req.getDescripcion()
+                );
+                case "TRANSFERENCIA" -> {
+                    TransaccionRequestDTO trf = new TransaccionRequestDTO();
+                    trf.setCuentaOrigen(req.getCuentaOrigen());
+                    trf.setCuentaDestino(req.getCuentaDestino());
+                    trf.setMonto(req.getMonto());
+                    trf.setDescripcion(req.getDescripcion());
+                    ref = service.procesarTransferencia(trf);
+                }
+                default -> throw new IllegalArgumentException(
+                        "Tipo de operación no soportado: " + req.getTipoOperacion()
+                );
+            }
+
             return ResponseEntity.ok(ref);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(e.getMessage());
+
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage(), ex);
+        } catch (Exception ex) {
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Error procesando operación de ventanilla",
+                    ex
+            );
         }
     }
     
-    // --- VALIDACIÓN CUENTA DESTINO ---
     @GetMapping("/info-cuenta/{numero}")
     public ResponseEntity<TitularCuentaDTO> infoCuenta(@PathVariable String numero) {
         try {
-            return ResponseEntity.ok(service.buscarTitularPorCuenta(numero));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
+            TitularCuentaDTO titular = service.buscarTitularPorCuenta(numero);
+            return ResponseEntity.ok(titular);
+        } catch (Exception ex) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Cuenta no encontrada con número " + numero,
+                    ex
+            );
         }
     }
 
-    // --- ADMINISTRATIVO (ACTIVAR/INACTIVAR) ---
-
     @PutMapping("/cuentas/{numero}/estado")
-    public ResponseEntity<String> cambiarEstadoCuenta(@PathVariable String numero, @RequestParam String estado) {
-        return cuentaRepo.findByNumeroCuenta(numero).map(c -> {
-            c.setEstado(estado);
-            cuentaRepo.save(c);
-            return ResponseEntity.ok("Estado actualizado a " + estado);
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<String> cambiarEstadoCuenta(
+            @PathVariable String numero,
+            @RequestParam String estado
+    ) {
+        return cuentaRepo.findByNumeroCuenta(numero)
+                .map(c -> {
+                    c.setEstado(estado);
+                    cuentaRepo.save(c);
+                    return ResponseEntity.ok("Estado de la cuenta actualizado a " + estado);
+                })
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Cuenta no encontrada con número " + numero
+                ));
     }
 
     @PostMapping("/clientes/estado")
-    public ResponseEntity<String> cambiarEstadoCliente(@RequestParam String cedula, @RequestParam String estado) {
-        return personaRepo.findByNumeroIdentificacion(cedula).map(p -> {
-            return clienteRepo.findById(p.getClienteId()).map(c -> {
-                c.setEstado(estado);
-                clienteRepo.save(c);
-                return ResponseEntity.ok("Cliente actualizado a " + estado);
-            }).orElse(ResponseEntity.notFound().build());
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<String> cambiarEstadoCliente(
+            @RequestParam String cedula,
+            @RequestParam String estado
+    ) {
+        var persona = personaRepo.findByNumeroIdentificacion(cedula)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Persona no encontrada con cédula " + cedula
+                ));
+
+        var cliente = clienteRepo.findById(persona.getClienteId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Cliente no encontrado para id " + persona.getClienteId()
+                ));
+
+        cliente.setEstado(estado);
+        clienteRepo.save(cliente);
+
+        return ResponseEntity.ok("Cliente actualizado a " + estado);
     }
 
     @DeleteMapping("/cuentas/{numero}")
-    @Transactional 
+    @Transactional
     public ResponseEntity<String> eliminarCuenta(@PathVariable String numero) {
-        return cuentaRepo.findByNumeroCuenta(numero).map(c -> {
-            transaccionRepo.deleteByCuenta_CuentaId(c.getCuentaId());
-            cuentaRepo.delete(c); 
-            return ResponseEntity.ok("Cuenta y su historial eliminados permanentemente");
-        }).orElse(ResponseEntity.notFound().build());
+        var cuenta = cuentaRepo.findByNumeroCuenta(numero)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Cuenta no encontrada con número " + numero
+                ));
+
+        transaccionRepo.deleteByCuenta_CuentaId(cuenta.getCuentaId());
+        cuentaRepo.delete(cuenta);
+
+        return ResponseEntity.ok("Cuenta y su historial eliminados permanentemente");
     }
 }

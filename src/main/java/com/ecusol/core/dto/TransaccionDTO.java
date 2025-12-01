@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 public class TransaccionDTO {
     private Integer transaccionId;
     private String referencia;
-    private String rolTransaccion; // EMISOR / RECEPTOR
+    private String rolTransaccion; 
     private BigDecimal monto;
     private String descripcion;
     private LocalDateTime fechaEjecucion;
