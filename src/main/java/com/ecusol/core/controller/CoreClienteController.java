@@ -27,11 +27,11 @@ public class CoreClienteController {
         return ResponseEntity.ok(numero);
     }
 
-    // --- EL ENDPOINT QUE FALTABA ---
+    // --- AGREGA ESTE MÉTODO ---
     @GetMapping("/{id}/estado-simple")
     public ResponseEntity<String> getEstadoSimple(@PathVariable Integer id) {
         return clienteRepo.findById(id)
-                .map(c -> ResponseEntity.ok(c.getEstado())) // Devuelve "ACTIVO"
+                .map(cliente -> ResponseEntity.ok(cliente.getEstado())) // Devuelve "ACTIVO"
                 .orElse(ResponseEntity.notFound().build());
     }
 }
