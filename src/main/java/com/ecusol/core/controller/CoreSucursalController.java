@@ -19,7 +19,6 @@ public class CoreSucursalController {
         return sucursalRepo.findAll().stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
-    // --- NUEVO ENDPOINT: BUSCAR POR ID ---
     @GetMapping("/{id}")
     public ResponseEntity<SucursalDTO> obtenerPorId(@PathVariable Integer id) {
         return sucursalRepo.findById(id)
