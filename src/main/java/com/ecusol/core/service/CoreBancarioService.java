@@ -5,7 +5,6 @@ import com.ecusol.core.dto.CrearCuentaDTO;
 import com.ecusol.core.dto.RegistroClienteCoreDTO;
 import com.ecusol.core.dto.TitularCuentaDTO;
 import com.ecusol.core.dto.TransaccionRequestDTO;
-import com.ecusol.core.model.Cliente;
 import com.ecusol.core.model.Cuenta;
 import com.ecusol.core.model.Persona;
 import com.ecusol.core.model.Transaccion;
